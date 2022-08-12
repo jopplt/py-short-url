@@ -1,0 +1,13 @@
+[importlinter]
+root_package = app
+
+[importlinter:contract:1]
+name=Layering
+type=layers
+layers=
+    entrypoints
+    adapters
+    application
+    domain
+containers=
+    app

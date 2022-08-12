@@ -4,7 +4,7 @@ import pydantic
 from application import errors
 from bootstrap import app
 from domain import commands, events
-from flasgger import Swagger
+from flasgger import Swagger  # type: ignore
 from flask import Flask, request
 from werkzeug.exceptions import BadRequest
 from werkzeug.http import HTTP_STATUS_CODES

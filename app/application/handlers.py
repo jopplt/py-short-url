@@ -1,40 +1,44 @@
-from typing import Union
+from typing import Generic, TypeVar, Union
 
-from application.repository import AbstractRepository, ShortUrlRepository
-from domain import commands, events
+from application import repository as _repository
+from domain import commands as _commands
+from domain import events as _events
+from domain import model as _model
+
+C = TypeVar("C", bound=_commands.Command)
+E = TypeVar("E", bound=_events.Event)
+R = TypeVar("R", bound=_repository.AbstractRepository)
 
 
-class Handler:
-    def __init__(self, repository: AbstractRepository):
+class Handler(Generic[R, C, E]):
+    def __init__(self, repository: R):
         self.repository = repository
 
-    def handle(self, command: commands.Command) -> events.Event:
+    def handle(self, command: C) -> E:
         raise NotImplementedError
 
 
-class EncodeHandler(Handler):
-    def __init__(self, repository: ShortUrlRepository):
-        super().__init__(repository=repository)
-
-    def handle(self, command: commands.Encode) -> events.UrlEncoded:
-        from domain.model import ShortUrlEntity
+class EncodeHandler(
+    Handler[_repository.ShortUrlRepository, _commands.Encode, _events.UrlEncoded]
+):
+    def handle(self, command: _commands.Encode) -> _events.UrlEncoded:
 
         code = self._generate_short_code(url=command.url)
         found = self.repository.get(key=code)
 
         if not found:
             self.repository.add(
-                ShortUrlEntity(
+                _model.ShortUrlEntity(
                     original_url=command.url,
                     code=code,
                 )
             )
-            return events.UrlEncoded(code=code)
+            return _events.UrlEncoded(code=code)
 
         if found.original_url != command.url:
             raise RuntimeError("Generated code is already used by another url")
 
-        return events.UrlEncoded(code=found.code)
+        return _events.UrlEncoded(code=found.code)
 
     @staticmethod
     def _generate_short_code(url: str) -> str:
@@ -51,14 +55,17 @@ class EncodeHandler(Handler):
         )[:6].lower()
 
 
-class DecodeHandler(Handler):
-    def __init__(self, repository: ShortUrlRepository):
-        super().__init__(repository=repository)
-
+class DecodeHandler(
+    Handler[
+        _repository.ShortUrlRepository,
+        _commands.Decode,
+        Union[_events.UrlNotFound, _events.ShortUrlDecoded],
+    ]
+):
     def handle(
-        self, command: commands.Decode
-    ) -> Union[events.UrlNotFound, events.ShortUrlDecoded]:
+        self, command: _commands.Decode
+    ) -> Union[_events.UrlNotFound, _events.ShortUrlDecoded]:
         if found := self.repository.get(key=command.code):
-            return events.ShortUrlDecoded(url=found.original_url)
+            return _events.ShortUrlDecoded(url=found.original_url)
 
-        return events.UrlNotFound()
+        return _events.UrlNotFound()

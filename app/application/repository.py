@@ -1,26 +1,21 @@
-import abc
-from typing import Any
+from typing import Any, Generic, TypeVar
+
+from domain import model
+
+E = TypeVar("E", bound=model.Entity)
 
 
-class AbstractRepository(abc.ABC):
-    from domain.model import Entity
-
-    @abc.abstractmethod
-    def add(self, entity: Entity) -> None:
+class AbstractRepository(Generic[E]):
+    def add(self, entity: E) -> None:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def get(self, key: Any) -> Entity:
+    def get(self, key: Any) -> E:
         raise NotImplementedError
 
 
-class ShortUrlRepository(AbstractRepository):
-    from domain.model import ShortUrlEntity
-
-    @abc.abstractmethod
-    def add(self, entity: ShortUrlEntity) -> None:
+class ShortUrlRepository(AbstractRepository[model.ShortUrlEntity]):
+    def add(self, entity: model.ShortUrlEntity) -> None:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def get(self, key: str) -> ShortUrlEntity:
+    def get(self, key: str) -> model.ShortUrlEntity:
         raise NotImplementedError

@@ -22,10 +22,8 @@ repos:
         entry: poetry run mypy app
         pass_filenames: false
         language: system
-  - repo: https://github.com/seddonym/import-linter
-    rev: v1.2.7
-    hooks:
       - id: import-linter
         name: import-linter
         entry: poetry run lint-imports
+        pass_filenames: false
         language: system

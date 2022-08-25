@@ -2,8 +2,7 @@ import json
 from unittest import mock
 
 import pytest
-from application import errors
-from application.app import App
+from application import errors, main
 from domain import commands, events
 
 
@@ -72,7 +71,7 @@ def test_encode_response(
     client, data, headers, command, event, exception, expected_status_code
 ):
     with mock.patch.object(
-        App, "handle", return_value=event, side_effect=exception
+        main.App, "handle", return_value=event, side_effect=exception
     ) as mock_handle:
         response = client.put(
             "encode",
@@ -127,8 +126,27 @@ def test_encode_response(
 )
 def test_decode_response(client, code, command, event, exception, expected_status_code):
     with mock.patch.object(
-        App, "handle", return_value=event, side_effect=exception
+        main.App, "handle", return_value=event, side_effect=exception
     ) as mock_handle:
         response = client.get(f"decode/{code}")
         mock_handle.assert_called_with(command)
         assert response.status_code == expected_status_code
+
+
+def test_api_integration(fake_client):
+    original_url = "https://test.io"
+    data = {"url": original_url}
+    headers = {"content-type": "application/json"}
+    code = "igokzx"
+    response_encode = fake_client.put(
+        "encode",
+        data=json.dumps(data),
+        headers=headers,
+    )
+    response_decode = fake_client.get(f"decode/{code}")
+
+    assert response_encode.status_code == 200
+    assert response_decode.status_code == 200
+
+    assert response_encode.data.decode("utf-8") == code
+    assert response_decode.data.decode("utf-8") == original_url

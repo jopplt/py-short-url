@@ -9,8 +9,6 @@ env:
   PYTHON_VERSION: 3.10.6
   POETRY_VERSION: 1.1.13
   POETRY_URL: https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py
-  POETRY_CACHE_KEY: poetry-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
-  POETRY_LOCAL_CACHE_KEY: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
 
 jobs:
   Build:
@@ -22,12 +20,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/pypoetry
-          key: ${{ env.POETRY_CACHE_KEY }}
+          key: poetry-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
       - name: Cache Packages
         uses: actions/cache@v2
         with:
           path: ~/.local
-          key: ${{ env.POETRY_LOCAL_CACHE_KEY }}
+          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
       - uses: ./.github/composites/setup-python
       - name: Install Poetry
         run: |
@@ -35,7 +33,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         with:
           path: ~/.local
-          key: ${{ env.POETRY_LOCAL_CACHE_KEY }}
+          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
       - name: Install Dependencies
         run: poetry install
   Static:
@@ -48,7 +46,7 @@ jobs:
         run: poetry run pre-commit run --all-files
         with:
           path: ~/.local
-          key: ${{ env.POETRY_LOCAL_CACHE_KEY }}
+          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
   Test:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +57,7 @@ jobs:
         run: poetry run pytest
         with:
           path: ~/.local
-          key: ${{ env.POETRY_LOCAL_CACHE_KEY }}
+          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
   Coverage:
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +69,7 @@ jobs:
           poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=app tests/ | tee pytest-coverage.txt
         with:
           path: ~/.local
-          key: ${{ env.POETRY_LOCAL_CACHE_KEY }}
+          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
       - name: Pytest coverage comment
         id: coverageComment
         uses: MishaKav/pytest-coverage-comment@main

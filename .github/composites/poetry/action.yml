@@ -21,8 +21,5 @@ runs:
       run: |
         curl -sSL ${{ env.POETRY_URL }} | python - --version ${{ env.POETRY_VERSION }}
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-      with:
-        path: ~/.local
-        key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
     - name: Install Dependencies
       run: poetry install

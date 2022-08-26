@@ -27,9 +27,6 @@ jobs:
       - uses: ./.github/composites/poetry
       - name: Run tests
         run: poetry run pytest
-        with:
-          path: ~/.local
-          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
   Coverage:
     runs-on: ubuntu-latest
     steps:

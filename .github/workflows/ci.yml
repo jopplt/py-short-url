@@ -11,27 +11,31 @@ env:
   POETRY_URL: https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py
 
 jobs:
-  Static:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: ./.github/composites/poetry
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/composites/poetry
       - name: Run static analysis
         run: poetry run pre-commit run --all-files
-  Test:
+    needs: build
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - uses: ./.github/composites/poetry
       - name: Run tests
         run: poetry run pytest
-  Coverage:
+    needs: build
+  coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - uses: ./.github/composites/poetry
       - name: Build coverage file
         run: |
@@ -61,3 +65,4 @@ jobs:
           message: ${{ steps.coverageComment.outputs.coverage }}
           color: ${{ steps.coverageComment.outputs.color }}
           namedLogo: python
+    needs: build

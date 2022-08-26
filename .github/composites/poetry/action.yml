@@ -18,6 +18,7 @@ runs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     - name: Install Poetry
+      shell: bash
       run: |
         curl -sSL ${{ env.POETRY_URL }} | python - --version ${{ env.POETRY_VERSION }}
         echo "$HOME/.local/bin" >> $GITHUB_PATH

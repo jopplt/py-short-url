@@ -13,8 +13,8 @@ runs:
       with:
         path: ~/.local
         key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
-    - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/poetry@v2
+    - name: Set up Python ${{ env.PYTHON_VgERSION }}
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     - name: Install Poetry

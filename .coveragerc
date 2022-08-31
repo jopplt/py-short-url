@@ -1,0 +1,4 @@
+[run]
+omit =
+    app/bootstrap.py
+    app/wsgi.py

@@ -1,11 +1,10 @@
 import logging
 
 import pytest
+from adapters import repository
 from application import handlers, main
 from domain import commands
 from entrypoints.api import ApiFactory
-
-from tests import doubles, utils
 
 
 @pytest.fixture()
@@ -14,30 +13,15 @@ def api_factory():
 
 
 @pytest.fixture()
-def api(api_factory):
-    # flask_app.config.update(
-    #     {
-    #         "TESTING": True,
-    #     }
-    # )
-    with utils.override_environ(
-        REDIS_HOST="test",
-        REDIS_PORT="6379",
-        REDIS_PASSWORD="secret",
-    ):
-        from bootstrap import app
+def redis_fake_client():
+    import fakeredis
 
-        yield api_factory.create(application=app)
+    return fakeredis.FakeStrictRedis(version=7, decode_responses=True)
 
 
 @pytest.fixture()
-def client(api):
-    return api.test_client()
-
-
-@pytest.fixture()
-def fake_short_url_repository():
-    return doubles.FakeShortUrlRepository()
+def fake_short_url_repository(redis_fake_client):
+    return repository.RedisShortUrlRepository(client=redis_fake_client)
 
 
 @pytest.fixture()

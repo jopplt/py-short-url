@@ -68,12 +68,12 @@ from domain import commands, events
     ],
 )
 def test_encode_response(
-    client, data, headers, command, event, exception, expected_status_code
+    fake_client, data, headers, command, event, exception, expected_status_code
 ):
     with mock.patch.object(
         main.App, "handle", return_value=event, side_effect=exception
     ) as mock_handle:
-        response = client.put(
+        response = fake_client.put(
             "encode",
             data=json.dumps(data),
             headers=headers,
@@ -124,11 +124,13 @@ def test_encode_response(
         "assert 500 response if handler does not return a valid event",
     ],
 )
-def test_decode_response(client, code, command, event, exception, expected_status_code):
+def test_decode_response(
+    fake_client, code, command, event, exception, expected_status_code
+):
     with mock.patch.object(
         main.App, "handle", return_value=event, side_effect=exception
     ) as mock_handle:
-        response = client.get(f"decode/{code}")
+        response = fake_client.get(f"decode/{code}")
         mock_handle.assert_called_with(command)
         assert response.status_code == expected_status_code
 

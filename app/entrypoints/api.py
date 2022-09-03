@@ -5,6 +5,7 @@ from application import errors, main
 from domain import commands, events
 from flasgger import Swagger  # type: ignore
 from flask import Flask, request
+from flask_cors import CORS  # type: ignore
 from werkzeug.exceptions import BadRequest
 from werkzeug.http import HTTP_STATUS_CODES
 
@@ -17,6 +18,7 @@ class ApiFactory:
     @classmethod
     def create(cls, application: main.App) -> Flask:
         flask_api = Flask(__name__)
+        CORS(flask_api)
         cls.build_api_docs(api=flask_api)
 
         @flask_api.route("/encode", methods=["PUT"])

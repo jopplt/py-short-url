@@ -2,11 +2,10 @@ from typing import Any, Tuple
 
 import pydantic
 from application import errors, main
-from domain import commands, queries, events
+from domain import commands, events, queries
 from flasgger import Swagger  # type: ignore
 from flask import Flask, request
 from flask_cors import CORS  # type: ignore
-from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 from werkzeug.http import HTTP_STATUS_CODES
 
 
@@ -23,10 +22,13 @@ class ApiFactory:
 
         @flask_api.route("/", methods=["GET"])
         def home() -> Tuple[str, int]:
-            return response("""
+            return response(
+                """
             <h1>URL Shortener</h1>
             <p>Find the api docs <a href=\"/apidocs/\">here</a>.</p>
-            """, 200)
+            """,
+                200,
+            )
 
         @flask_api.route("/favicon.ico", methods=["GET"])
         def favicon() -> Tuple[str, int]:

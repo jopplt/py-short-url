@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 from application import handlers
-from domain import commands, queries, events, model
+from domain import commands, events, model, queries
 
 
 @dataclass

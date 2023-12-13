@@ -2,9 +2,9 @@ from typing import Generic, TypeVar, Union
 
 from application import repository as _repository
 from domain import commands as _commands
-from domain import queries as _queries
 from domain import events as _events
 from domain import model as _model
+from domain import queries as _queries
 
 C = TypeVar("C", bound=Union[_commands.Command, _queries.Query])
 E = TypeVar("E", bound=_events.Event)

@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from application import errors, main
-from domain import commands, queries, events
+from domain import commands, events, queries
 
 
 @pytest.mark.parametrize(

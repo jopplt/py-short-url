@@ -4,7 +4,7 @@ import os
 import redis
 from adapters.repository import RedisShortUrlRepository
 from application import handlers, main
-from domain import commands
+from domain import commands, queries
 
 _redis = redis.StrictRedis(
     host=os.environ["REDIS_HOST"],
@@ -20,7 +20,7 @@ _logger = logging.getLogger("werkzeug")
 app = main.App(
     handlers={
         commands.Encode: handlers.EncodeHandler(repository=_short_url_repository),
-        commands.Decode: handlers.DecodeHandler(repository=_short_url_repository),
+        queries.Decode: handlers.DecodeHandler(repository=_short_url_repository),
     },
     logger=_logger,
 )

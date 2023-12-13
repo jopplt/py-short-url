@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 
-class Command:
+class Query:
     pass
 
 
 @dataclass
-class Encode(Command):
-    url: str
+class Decode(Query):
+    code: str

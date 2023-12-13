@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 from application import handlers
-from domain import commands, events, model
+from domain import commands, queries, events, model
 
 
 @dataclass
@@ -79,15 +79,15 @@ def test_encode_handler(command, mocks, expected, expected_context):
 
         with expected_context:
             handler = handlers.EncodeHandler(repository=mock_repository())
-            actual = handler.handle(command=command)
+            actual = handler.handle(request=command)
             assert actual == expected
 
 
 @pytest.mark.parametrize(
-    "command, mocks, expected, expected_context",
+    "query, mocks, expected, expected_context",
     [
         (
-            commands.Decode(code="igokzx"),
+            queries.Decode(code="igokzx"),
             [
                 MethodMock(
                     function="get",
@@ -102,7 +102,7 @@ def test_encode_handler(command, mocks, expected, expected_context):
             nullcontext(),
         ),
         (
-            commands.Decode(code="igokzx"),
+            queries.Decode(code="igokzx"),
             [
                 MethodMock(
                     function="get",
@@ -119,7 +119,7 @@ def test_encode_handler(command, mocks, expected, expected_context):
         "decode unknown code",
     ],
 )
-def test_decode_handler(command, mocks, expected, expected_context):
+def test_decode_handler(query, mocks, expected, expected_context):
     with mock.patch("application.repository.ShortUrlRepository") as mock_repository:
         for method_mock in mocks:
             getattr(
@@ -131,7 +131,7 @@ def test_decode_handler(command, mocks, expected, expected_context):
 
         with expected_context:
             handler = handlers.DecodeHandler(repository=mock_repository())
-            actual = handler.handle(command=command)
+            actual = handler.handle(request=query)
             assert actual == expected
 
 
@@ -140,4 +140,4 @@ def test_generic_handler():
         handler = handlers.Handler(repository=mock_repository)
 
         with pytest.raises(NotImplementedError):
-            handler.handle(command=commands.Command())
+            handler.handle(request=commands.Command())

@@ -2,11 +2,11 @@ from typing import Any, Tuple
 
 import pydantic
 from application import errors, main
-from domain import commands, events
+from domain import commands, queries, events
 from flasgger import Swagger  # type: ignore
 from flask import Flask, request
 from flask_cors import CORS  # type: ignore
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 from werkzeug.http import HTTP_STATUS_CODES
 
 
@@ -20,6 +20,17 @@ class ApiFactory:
         flask_api = Flask(__name__)
         CORS(flask_api)
         cls.build_api_docs(api=flask_api)
+
+        @flask_api.route("/", methods=["GET"])
+        def home() -> Tuple[str, int]:
+            return response("""
+            <h1>URL Shortener</h1>
+            <p>Find the api docs <a href=\"/apidocs/\">here</a>.</p>
+            """, 200)
+
+        @flask_api.route("/favicon.ico", methods=["GET"])
+        def favicon() -> Tuple[str, int]:
+            return response(None, 204)
 
         @flask_api.route("/encode", methods=["PUT"])
         def encode() -> Tuple[str, int]:
@@ -44,10 +55,7 @@ class ApiFactory:
                 schema:
                   type: string
             """
-            try:
-                content = request.get_json()
-            except BadRequest as e:
-                return response(e, 400)
+            content = request.get_json()
 
             try:
                 encode_request = EncodeRequest.parse_obj(content)
@@ -87,8 +95,8 @@ class ApiFactory:
                 description: Not found - URL was not encoded
             """
             try:
-                command = commands.Decode(code=code)
-                event = application.handle(command)
+                query = queries.Decode(code=code)
+                event = application.handle(query)
             except errors.HandlerError as e:
                 return response(e, 500)
 

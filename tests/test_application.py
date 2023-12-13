@@ -8,7 +8,7 @@ from domain import commands
 def test_application_raises_exception_for_missing_handler(fake_logger):
     app = main.App(handlers={}, logger=fake_logger)
     with pytest.raises(errors.HandlerNotFound):
-        app.handle(command=commands.Encode(url="https://test.io"))
+        app.handle(request=commands.Encode(url="https://test.io"))
 
 
 def test_application_raises_exception_when_handler_fails(
@@ -20,4 +20,4 @@ def test_application_raises_exception_when_handler_fails(
         app = main.App(handlers={commands.Encode: mock_handler()}, logger=fake_logger)
 
         with pytest.raises(errors.HandlerError):
-            app.handle(command=commands.Encode(url="https://test.io"))
+            app.handle(request=commands.Encode(url="https://test.io"))

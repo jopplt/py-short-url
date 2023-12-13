@@ -3,7 +3,7 @@ import logging
 import pytest
 from adapters import repository
 from application import handlers, main
-from domain import commands
+from domain import commands, queries
 from entrypoints.api import ApiFactory
 
 
@@ -36,7 +36,7 @@ def fake_app(fake_short_url_repository, fake_logger):
             commands.Encode: handlers.EncodeHandler(
                 repository=fake_short_url_repository
             ),
-            commands.Decode: handlers.DecodeHandler(
+            queries.Decode: handlers.DecodeHandler(
                 repository=fake_short_url_repository
             ),
         },

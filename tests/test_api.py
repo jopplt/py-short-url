@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from application import errors, main
-from domain import commands, events
+from domain import commands, queries, events
 
 
 @pytest.mark.parametrize(
@@ -23,7 +23,7 @@ from domain import commands, events
             None,
             None,
             None,
-            400,
+            415,
         ),
         (
             {"wrong_key": "https://test.io"},
@@ -90,28 +90,28 @@ def test_encode_response(
     [
         (
             "test",
-            commands.Decode(code="test"),
+            queries.Decode(code="test"),
             events.ShortUrlDecoded(url="https://test.io"),
             None,
             200,
         ),
         (
             "missing",
-            commands.Decode(code="missing"),
+            queries.Decode(code="missing"),
             events.UrlNotFound(),
             None,
             404,
         ),
         (
             "test",
-            commands.Decode(code="test"),
+            queries.Decode(code="test"),
             None,
             errors.HandlerError("Test error"),
             500,
         ),
         (
             "test",
-            commands.Decode(code="test"),
+            queries.Decode(code="test"),
             None,
             None,
             500,

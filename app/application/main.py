@@ -25,4 +25,4 @@ class App:
             return handler.handle(request)
         except Exception as e:
             self.logger.error(e)
-            raise errors.HandlerError(str(e))
+            raise errors.HandlerError(e)

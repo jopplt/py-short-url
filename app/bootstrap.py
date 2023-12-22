@@ -7,9 +7,9 @@ from application import handlers, main
 from domain import commands, queries
 
 _redis = redis.StrictRedis(
-    host=os.environ["REDIS_HOST"],
-    port=int(os.environ["REDIS_PORT"]),
-    password=os.environ["REDIS_PASSWORD"],
+    host=os.getenv("REDIS_HOST", "localhost"),
+    port=int(os.getenv("REDIS_PORT", 6379)),
+    password=os.getenv("REDIS_PASSWORD", None),
     decode_responses=True,
 )
 

@@ -1,5 +1,3 @@
-from typing import Union
-
 from application.repository import ShortUrlRepository
 from domain.model import ShortUrlEntity
 from redis import Redis
@@ -16,10 +14,10 @@ class RedisShortUrlRepository(ShortUrlRepository):
             name=self.HASH_NAME, key=str(entity.code), value=str(entity.original_url)
         )
 
-    def get(self, key: str) -> Union[None, ShortUrlEntity]:
+    def get(self, key: str) -> ShortUrlEntity | None:
         value = self.client.hget(name=self.HASH_NAME, key=key)
 
         if not value:
             return None
 
-        return ShortUrlEntity(original_url=value, code=key)
+        return ShortUrlEntity(original_url=value)

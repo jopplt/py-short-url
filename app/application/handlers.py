@@ -1,12 +1,13 @@
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from application import repository as _repository
 from domain import commands as _commands
+from domain import errors as _errors
 from domain import events as _events
 from domain import model as _model
 from domain import queries as _queries
 
-C = TypeVar("C", bound=Union[_commands.Command, _queries.Query])
+C = TypeVar("C", bound=_commands.Command | _queries.Query)
 E = TypeVar("E", bound=_events.Event)
 R = TypeVar("R", bound=_repository.AbstractRepository)
 
@@ -24,49 +25,28 @@ class EncodeHandler(
 ):
     def handle(self, request: _commands.Encode) -> _events.UrlEncoded:
 
-        code = self._generate_short_code(url=request.url)
-        found = self.repository.get(key=code)
+        encoded = _model.ShortUrlEntity(original_url=request.url)
+        found = self.repository.get(key=encoded.code)
 
         if not found:
-            self.repository.add(
-                _model.ShortUrlEntity(
-                    original_url=request.url,
-                    code=code,
-                )
-            )
-            return _events.UrlEncoded(code=code)
+            self.repository.add(encoded)
+            return _events.UrlEncoded(code=encoded.code)
 
         if found.original_url != request.url:
-            raise RuntimeError("Generated code is already used by another url")
+            raise _errors.CodeIsNotAvailable(code=found.code)
 
         return _events.UrlEncoded(code=found.code)
-
-    @staticmethod
-    def _generate_short_code(url: str) -> str:
-        import base64
-        import hashlib
-        import re
-
-        return re.sub(
-            r"[^\w\d]",
-            "",
-            base64.urlsafe_b64encode(
-                hashlib.sha256(f"{url}".encode()).digest()
-            ).decode(),
-        )[:6].lower()
 
 
 class DecodeHandler(
     Handler[
         _repository.ShortUrlRepository,
         _queries.Decode,
-        Union[_events.UrlNotFound, _events.ShortUrlDecoded],
+        _events.ShortUrlDecoded,
     ]
 ):
-    def handle(
-        self, request: _queries.Decode
-    ) -> Union[_events.UrlNotFound, _events.ShortUrlDecoded]:
+    def handle(self, request: _queries.Decode) -> _events.ShortUrlDecoded:
         if found := self.repository.get(key=request.code):
             return _events.ShortUrlDecoded(url=found.original_url)
 
-        return _events.UrlNotFound()
+        raise _errors.UrlNotFound(code=request.code)

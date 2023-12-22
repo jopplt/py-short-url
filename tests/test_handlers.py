@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 from application import handlers
-from domain import commands, events, model, queries
+from domain import commands, errors, events, model, queries
 
 
 @dataclass
@@ -37,7 +37,6 @@ class MethodMock:
                     function="get",
                     return_value=model.ShortUrlEntity(
                         original_url="https://test.io",
-                        code="igokzx",
                     ),
                     side_effect=None,
                 )
@@ -52,7 +51,6 @@ class MethodMock:
                     function="get",
                     return_value=model.ShortUrlEntity(
                         original_url="https://another.test.io",
-                        code="igokzx",
                     ),
                     side_effect=None,
                 )
@@ -93,7 +91,6 @@ def test_encode_handler(command, mocks, expected, expected_context):
                     function="get",
                     return_value=model.ShortUrlEntity(
                         original_url="https://test.io",
-                        code="igokzx",
                     ),
                     side_effect=None,
                 )
@@ -110,8 +107,8 @@ def test_encode_handler(command, mocks, expected, expected_context):
                     side_effect=None,
                 )
             ],
-            events.UrlNotFound(),
-            nullcontext(),
+            None,
+            pytest.raises(errors.UrlNotFound),
         ),
     ],
     ids=[

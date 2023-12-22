@@ -3,7 +3,9 @@ from unittest import mock
 
 import pytest
 from application import errors, main
-from domain import commands, events, queries
+from domain import commands
+from domain import errors as domain_errors
+from domain import events, queries
 
 
 @pytest.mark.parametrize(
@@ -98,8 +100,8 @@ def test_encode_response(
         (
             "missing",
             queries.Decode(code="missing"),
-            events.UrlNotFound(),
             None,
+            domain_errors.UrlNotFound(code="missing"),
             404,
         ),
         (

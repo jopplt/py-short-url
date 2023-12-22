@@ -3,6 +3,7 @@ version: '3.9'
 services:
     url-shortener-app:
         build:
+            dockerfile: ./app/Dockerfile
             context: .
         volumes: ['./app:/opt/app']
         ports:

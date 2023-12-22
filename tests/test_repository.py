@@ -2,7 +2,7 @@ from domain import model
 
 
 def test_repository_add_and_get(fake_short_url_repository):
-    entity = model.ShortUrlEntity(original_url="https://test.io", code="igokzx")
+    entity = model.ShortUrlEntity(original_url="https://test.io")
     fake_short_url_repository.add(entity=entity)
     actual = fake_short_url_repository.get(key="igokzx")
     assert actual.code == entity.code

@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Type, Union
+from typing import Dict, Type
 
 from application import errors
 from application import handlers as _handlers
@@ -9,15 +9,13 @@ from domain import commands, events, queries
 class App:
     def __init__(
         self,
-        handlers: Dict[
-            Type[Union[commands.Command | queries.Query]], _handlers.Handler
-        ],
+        handlers: Dict[Type[commands.Command | queries.Query], _handlers.Handler],
         logger: logging.Logger,
     ):
         self.handlers = handlers
         self.logger = logger
 
-    def handle(self, request: Union[commands.Command, queries.Query]) -> events.Event:
+    def handle(self, request: commands.Command | queries.Query) -> events.Event:
         if not type(request) in self.handlers:
             raise errors.HandlerNotFound
 

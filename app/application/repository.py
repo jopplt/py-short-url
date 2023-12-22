@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeVar, Union
+from typing import Any, Generic, TypeVar
 
 from domain import model
 
@@ -17,5 +17,5 @@ class ShortUrlRepository(AbstractRepository[model.ShortUrlEntity]):
     def add(self, entity: model.ShortUrlEntity) -> None:  # pragma: no cover
         raise NotImplementedError
 
-    def get(self, key: str) -> Union[None, model.ShortUrlEntity]:  # pragma: no cover
+    def get(self, key: str) -> model.ShortUrlEntity | None:  # pragma: no cover
         raise NotImplementedError

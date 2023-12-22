@@ -13,8 +13,3 @@ class UrlEncoded(Event):
 @dataclass
 class ShortUrlDecoded(Event):
     url: str
-
-
-@dataclass
-class UrlNotFound(Event):
-    pass

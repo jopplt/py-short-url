@@ -1,0 +1,45 @@
+version: '3'
+
+vars:
+  CLUSTER_NAME: url-shortener
+
+tasks:
+  install-requirements:
+    desc: Install requirements for the development setup
+    preconditions:
+      - sh: command -v brew
+        msg: Homebrew is required.
+    cmds:
+      - brew install docker kubernetes-cli skaffold k3d
+  
+  k3d:create-cluster:
+    desc: Creates a local k3s cluster
+    preconditions:
+      - sh: command -v k3d
+        msg: K3d is required.
+      - sh: command -v docker
+        msg: K3d needs docker.
+    cmds:
+      - >-
+        k3d cluster create "{{.CLUSTER_NAME}}"
+        --servers 1
+        --agents {{.CLI_ARGS | default "1"}}
+        --k3s-arg '--disable=traefik@server:0'
+        --no-lb
+        --wait
+  
+  k3d:delete-cluster:
+    desc: Deletes the local k3s cluster
+    preconditions:
+      - sh: command -v k3d
+        msg: K3d is required.
+    cmds:
+      - k3d cluster delete "{{.CLUSTER_NAME}}"
+
+  skaffold:dev:
+    desc: Starts the local development environment with port forwarding
+    preconditions:
+      - sh: command -v skaffold
+        msg: Skaffold is required.
+    cmds:
+      - skaffold dev -p local --port-forward --kube-context $(kubectl config current-context)

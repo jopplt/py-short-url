@@ -1,0 +1,22 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+metadata:
+  name: url-shortener
+build:
+  artifacts:
+    - image: url-shortener-app
+      context: .
+      docker:
+        dockerfile: app/Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - k8s/base
+profiles:
+  - name: local
+
+portForward:
+  - resourceType: service
+    resourceName: url-shortener-nginx-service
+    port: 80
+    localPort: 8081

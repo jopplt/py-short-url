@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener-nginx-service
+spec:
+  selector:
+    app: url-shortener
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener-app-service
+spec:
+  selector:
+    app: url-shortener
+  ports:
+  - protocol: TCP
+    port: 5001
+    targetPort: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener-redis-service
+spec:
+  selector:
+    app: url-shortener
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379

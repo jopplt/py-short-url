@@ -1,10 +1,8 @@
 from typing import Any, Tuple
 
 import pydantic
-from application import errors, main
-from domain import commands
-from domain import errors as domain_errors
-from domain import events, queries
+from application import main
+from domain import commands, errors, events, queries
 from flasgger import Swagger  # type: ignore
 from flask import Flask, request
 from flask_cors import CORS  # type: ignore
@@ -69,7 +67,7 @@ class ApiFactory:
             try:
                 command = commands.Encode(url=encode_request.url)
                 event = application.handle(command)
-            except errors.HandlerError as e:
+            except errors.CodeIsNotAvailable as e:
                 return response(e, 500)
 
             try:
@@ -101,10 +99,10 @@ class ApiFactory:
             try:
                 query = queries.Decode(code=code)
                 event = application.handle(query)
-            except errors.HandlerError as e:
-                return response(e, 500)
-            except domain_errors.UrlNotFound as e:
+            except errors.UrlNotFound as e:
                 return response(e, 404)
+            except Exception as e:
+                return response(e, 500)
 
             if isinstance(event, events.ShortUrlDecoded):
                 return response(event.url, 200)

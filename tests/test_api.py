@@ -2,10 +2,8 @@ import json
 from unittest import mock
 
 import pytest
-from application import errors, main
-from domain import commands
-from domain import errors as domain_errors
-from domain import events, queries
+from application import main
+from domain import commands, errors, events, queries
 
 
 @pytest.mark.parametrize(
@@ -48,7 +46,7 @@ from domain import events, queries
             {"content-type": "application/json"},
             commands.Encode(url="https://test.io"),
             events.UrlEncoded(code="test"),
-            errors.HandlerError("Test error"),
+            RuntimeError("Test error"),
             500,
         ),
         (
@@ -101,14 +99,14 @@ def test_encode_response(
             "missing",
             queries.Decode(code="missing"),
             None,
-            domain_errors.UrlNotFound(code="missing"),
+            errors.UrlNotFound(code="missing"),
             404,
         ),
         (
             "test",
             queries.Decode(code="test"),
             None,
-            errors.HandlerError("Test error"),
+            RuntimeError("Test error"),
             500,
         ),
         (

@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, Type
 
-from application import errors
 from application import handlers as _handlers
 from domain import commands, events, queries
 
@@ -17,12 +16,6 @@ class App:
 
     def handle(self, request: commands.Command | queries.Query) -> events.Event:
         if not type(request) in self.handlers:
-            raise errors.HandlerNotFound
+            raise RuntimeError(f"Missing handler for {type(request)}")
 
-        handler = self.handlers[type(request)]
-
-        try:
-            return handler.handle(request)
-        except Exception as e:
-            self.logger.error(e)
-            raise errors.HandlerError(e)
+        return self.handlers[type(request)].handle(request)

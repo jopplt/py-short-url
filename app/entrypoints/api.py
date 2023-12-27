@@ -60,12 +60,12 @@ class ApiFactory:
             content = request.get_json()
 
             try:
-                encode_request = EncodeRequest.parse_obj(content)
+                encode_request = EncodeRequest.model_validate(content)
             except (pydantic.ValidationError, KeyError) as e:
                 return response(e, 400)
 
             try:
-                command = commands.Encode(url=encode_request.url)
+                command = commands.Encode(url=str(encode_request.url))
                 event = application.handle(command)
             except errors.CodeIsNotAvailable as e:
                 return response(e, 500)

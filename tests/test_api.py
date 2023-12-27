@@ -12,7 +12,7 @@ from domain import commands, errors, events, queries
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io"),
+            commands.Encode(url="https://test.io/"),
             events.UrlEncoded(code="test"),
             None,
             200,
@@ -44,7 +44,7 @@ from domain import commands, errors, events, queries
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io"),
+            commands.Encode(url="https://test.io/"),
             events.UrlEncoded(code="test"),
             RuntimeError("Test error"),
             500,
@@ -52,7 +52,7 @@ from domain import commands, errors, events, queries
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io"),
+            commands.Encode(url="https://test.io/"),
             None,
             None,
             500,
@@ -136,19 +136,19 @@ def test_decode_response(
 
 
 def test_api_integration(fake_client):
-    original_url = "https://test.io"
+    original_url = "https://test.io/path"
     data = {"url": original_url}
     headers = {"content-type": "application/json"}
-    code = "igokzx"
     response_encode = fake_client.put(
         "encode",
         data=json.dumps(data),
         headers=headers,
     )
-    response_decode = fake_client.get(f"decode/{code}")
+    response_decode = fake_client.get(
+        f"decode/{str(response_encode.data.decode('utf-8'))}"
+    )
 
     assert response_encode.status_code == 200
     assert response_decode.status_code == 200
 
-    assert response_encode.data.decode("utf-8") == code
     assert response_decode.data.decode("utf-8") == original_url

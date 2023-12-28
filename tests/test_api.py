@@ -23,7 +23,7 @@ from domain import commands, errors, events, queries
             None,
             None,
             None,
-            415,
+            422,
         ),
         (
             {"wrong_key": "https://test.io"},
@@ -31,7 +31,7 @@ from domain import commands, errors, events, queries
             None,
             None,
             None,
-            400,
+            422,
         ),
         (
             {"url": "invalid_url"},
@@ -39,7 +39,7 @@ from domain import commands, errors, events, queries
             None,
             None,
             None,
-            400,
+            422,
         ),
         (
             {"url": "https://test.io"},
@@ -75,7 +75,7 @@ def test_encode_response(
     ) as mock_handle:
         response = fake_client.put(
             "encode",
-            data=json.dumps(data),
+            json=data,
             headers=headers,
         )
         if command:
@@ -145,10 +145,10 @@ def test_api_integration(fake_client):
         headers=headers,
     )
     response_decode = fake_client.get(
-        f"decode/{str(response_encode.data.decode('utf-8'))}"
+        f"decode/{str(response_encode.content.decode('utf-8'))}"
     )
 
     assert response_encode.status_code == 200
     assert response_decode.status_code == 200
 
-    assert response_decode.data.decode("utf-8") == original_url
+    assert response_decode.content.decode("utf-8") == original_url

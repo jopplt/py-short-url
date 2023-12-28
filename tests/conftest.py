@@ -4,7 +4,8 @@ import pytest
 from adapters import repository
 from application import handlers, main
 from domain import commands, queries
-from entrypoints.api import ApiFactory
+from entrypoints.fastapi import ApiFactory
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture()
@@ -51,4 +52,4 @@ def fake_api(api_factory, fake_app):
 
 @pytest.fixture()
 def fake_client(fake_api):
-    return fake_api.test_client()
+    return TestClient(fake_api)

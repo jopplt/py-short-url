@@ -24,6 +24,7 @@ tasks:
         k3d cluster create "{{.CLUSTER_NAME}}"
         --servers 1
         --agents {{.CLI_ARGS | default "1"}}
+        --volume /tmp/k8s/volumes/{{.CLUSTER_NAME}}:/tmp/data
         --k3s-arg '--disable=traefik@server:0'
         --no-lb
         --wait

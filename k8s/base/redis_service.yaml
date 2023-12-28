@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: url-shortener
+spec:
+  selector:
+    app: url-shortener
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+  clusterIP: None

@@ -1,10 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- service.yaml
-- deployment.yaml
-- configmap.yaml
+- app_service.yaml
+- app_deployment.yaml
+- redis_pv.yaml
+- redis_pvc.yaml
+- redis_service.yaml
+- redis_sts.yaml
 
 commonLabels:
   app: url-shortener
-  tier: api
+  tier: backend

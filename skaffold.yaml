@@ -14,9 +14,3 @@ manifests:
       - k8s/base
 profiles:
   - name: local
-
-portForward:
-  - resourceType: service
-    resourceName: url-shortener-nginx-service
-    port: 80
-    localPort: 8081

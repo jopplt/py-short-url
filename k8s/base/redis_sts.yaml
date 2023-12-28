@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: url-shortener-redis
+  labels:
+    app: url-shortener
+spec:
+  serviceName: "redis"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: url-shortener
+  template:
+    metadata:
+      labels:
+        app: url-shortener
+    spec:
+      volumes:
+        - name: redis-pv
+          persistentVolumeClaim:
+            claimName: redis-pvc
+      containers:
+      - name: redis
+        image: redis:6.0.9-alpine
+        ports:
+          - containerPort: 6379
+        volumeMounts:
+          - name: redis-pv
+            mountPath: /data
+            subPath: app

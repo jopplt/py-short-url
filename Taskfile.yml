@@ -10,7 +10,7 @@ tasks:
       - sh: command -v brew
         msg: Homebrew is required.
     cmds:
-      - brew install docker kubernetes-cli skaffold k3d
+      - brew install docker kubernetes-cli skaffold k3d minikube
   
   k3d:create-cluster:
     desc: Creates a local k3s cluster
@@ -36,6 +36,30 @@ tasks:
         msg: K3d is required.
     cmds:
       - k3d cluster delete "{{.CLUSTER_NAME}}"
+
+  minikube:create-cluster:
+    desc: Creates a local minikube cluster
+    preconditions:
+      - sh: command -v minikube
+        msg: Minikube is required.
+    cmds:
+      - minikube start
+
+  minikube:mount-volume:
+    desc: Mounts the local volume to the minikube cluster
+    preconditions:
+      - sh: command -v minikube
+        msg: Minikube is required.
+    cmds:
+      - minikube mount /tmp/k8s/volumes/{{.CLUSTER_NAME}}:/tmp/data
+
+  minikube:delete-cluster:
+    desc: Deletes the local minikube cluster
+    preconditions:
+      - sh: command -v minikube
+        msg: Minikube is required.
+    cmds:
+      - minikube delete
 
   skaffold:dev:
     desc: Starts the local development environment with port forwarding

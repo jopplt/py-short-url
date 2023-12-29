@@ -9,4 +9,4 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-dev
 COPY app .
 EXPOSE 5000
-CMD [ "uwsgi", "--ini", "app.ini" ]
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "wsgi:api", "--bind", "0.0.0.0:5000"]

@@ -17,15 +17,9 @@ spec:
           image: url-shortener-app:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5001
+            - containerPort: 5000
           securityContext:
             readOnlyRootFilesystem: true
           env:
-            - name: APP_PORT
-              value: "5001"
             - name: REDIS_HOST
               value: redis
-#            - name: REDIS_PORT
-#              value: "6379"
-#            - name: REDIS_PASSWORD
-#              value: MDNcVb924a

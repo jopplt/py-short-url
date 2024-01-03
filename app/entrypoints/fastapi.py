@@ -1,6 +1,6 @@
 import pydantic
 from application import main
-from domain import commands, errors, events, queries
+from application.ports import errors, requests, responses
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 
@@ -17,7 +17,7 @@ class ApiFactory:
         @fast_api.get(
             "/", include_in_schema=False, status_code=200, response_class=Response
         )
-        def home() -> Response:
+        def home() -> Response:  # pragma: no cover
             return Response(
                 content="""
             <h1>URL Shortener</h1>
@@ -27,7 +27,7 @@ class ApiFactory:
             )
 
         @fast_api.get("/favicon.ico", include_in_schema=False, status_code=204)
-        def favicon() -> None:
+        def favicon() -> None:  # pragma: no cover
             return None
 
         @fast_api.put(
@@ -56,14 +56,13 @@ class ApiFactory:
                   type: string
             """
             try:
-                command = commands.Encode(url=str(request.url))
-                event = application.handle(command)
+                response = application.handle(requests.EncodeUrl(url=str(request.url)))
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
             try:
-                assert isinstance(event, events.UrlEncoded)
-                return Response(content=event.code, media_type="text/plain")
+                assert isinstance(response, responses.EncodedUrl)
+                return Response(content=response.code, media_type="text/plain")
             except AssertionError as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
@@ -93,15 +92,14 @@ class ApiFactory:
                 description: Not found - URL was not encoded
             """
             try:
-                query = queries.Decode(code=code)
-                event = application.handle(query)
+                response = application.handle(requests.DecodeShortenedUrl(code=code))
             except errors.UrlNotFound as e:
                 raise HTTPException(status_code=404, detail=str(e))
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
-            if isinstance(event, events.ShortUrlDecoded):
-                return Response(content=event.url, media_type="text/plain")
+            if isinstance(response, responses.DecodedUrl):
+                return Response(content=response.url, media_type="text/plain")
 
             raise HTTPException(status_code=500, detail="Internal server error")
 

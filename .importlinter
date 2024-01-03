@@ -8,6 +8,5 @@ layers=
     entrypoints
     adapters
     application
-    domain
 containers=
     app

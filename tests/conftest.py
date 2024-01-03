@@ -1,11 +1,11 @@
 import logging
 
 import pytest
-from adapters import repository
-from application import handlers, main
-from domain import commands, queries
+from application import main
 from entrypoints.fastapi import ApiFactory
 from fastapi.testclient import TestClient
+
+from .doubles import SpyShortUrlRepository
 
 
 @pytest.fixture()
@@ -22,7 +22,7 @@ def redis_fake_client():
 
 @pytest.fixture()
 def fake_short_url_repository(redis_fake_client):
-    return repository.RedisShortUrlRepository(client=redis_fake_client)
+    return SpyShortUrlRepository(client=redis_fake_client)
 
 
 @pytest.fixture()
@@ -33,14 +33,7 @@ def fake_logger():
 @pytest.fixture()
 def fake_app(fake_short_url_repository, fake_logger):
     return main.App(
-        handlers={
-            commands.Encode: handlers.EncodeHandler(
-                repository=fake_short_url_repository
-            ),
-            queries.Decode: handlers.DecodeHandler(
-                repository=fake_short_url_repository
-            ),
-        },
+        repository=fake_short_url_repository,
         logger=fake_logger,
     )
 

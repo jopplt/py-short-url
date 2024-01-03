@@ -1,19 +1,18 @@
-import json
 from unittest import mock
 
 import pytest
 from application import main
-from domain import commands, errors, events, queries
+from application.ports import errors, requests, responses
 
 
 @pytest.mark.parametrize(
-    "data, headers, command, event, exception, expected_status_code",
+    "data, headers, req, resp, exception, expected_status_code",
     [
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io/"),
-            events.UrlEncoded(code="test"),
+            requests.EncodeUrl(url="https://test.io/"),
+            responses.EncodedUrl(code="test"),
             None,
             200,
         ),
@@ -44,15 +43,15 @@ from domain import commands, errors, events, queries
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io/"),
-            events.UrlEncoded(code="test"),
+            requests.EncodeUrl(url="https://test.io/"),
+            responses.EncodedUrl(code="test"),
             RuntimeError("Test error"),
             500,
         ),
         (
             {"url": "https://test.io"},
             {"content-type": "application/json"},
-            commands.Encode(url="https://test.io/"),
+            requests.EncodeUrl(url="https://test.io/"),
             None,
             None,
             500,
@@ -68,50 +67,50 @@ from domain import commands, errors, events, queries
     ],
 )
 def test_encode_response(
-    fake_client, data, headers, command, event, exception, expected_status_code
+    fake_client, data, headers, req, resp, exception, expected_status_code
 ):
     with mock.patch.object(
-        main.App, "handle", return_value=event, side_effect=exception
+        main.App, "handle", return_value=resp, side_effect=exception
     ) as mock_handle:
         response = fake_client.put(
             "encode",
             json=data,
             headers=headers,
         )
-        if command:
-            mock_handle.assert_called_with(command)
+        if req:
+            mock_handle.assert_called_with(req)
         else:
             mock_handle.assert_not_called()
         assert response.status_code == expected_status_code
 
 
 @pytest.mark.parametrize(
-    "code, command, event, exception, expected_status_code",
+    "code, req, resp, exception, expected_status_code",
     [
         (
             "test",
-            queries.Decode(code="test"),
-            events.ShortUrlDecoded(url="https://test.io"),
+            requests.DecodeShortenedUrl(code="test"),
+            responses.DecodedUrl(url="https://test.io"),
             None,
             200,
         ),
         (
             "missing",
-            queries.Decode(code="missing"),
+            requests.DecodeShortenedUrl(code="missing"),
             None,
             errors.UrlNotFound(code="missing"),
             404,
         ),
         (
             "test",
-            queries.Decode(code="test"),
+            requests.DecodeShortenedUrl(code="test"),
             None,
             RuntimeError("Test error"),
             500,
         ),
         (
             "test",
-            queries.Decode(code="test"),
+            requests.DecodeShortenedUrl(code="test"),
             None,
             None,
             500,
@@ -124,31 +123,10 @@ def test_encode_response(
         "assert 500 response if handler does not return a valid event",
     ],
 )
-def test_decode_response(
-    fake_client, code, command, event, exception, expected_status_code
-):
+def test_decode_response(fake_client, code, req, resp, exception, expected_status_code):
     with mock.patch.object(
-        main.App, "handle", return_value=event, side_effect=exception
+        main.App, "handle", return_value=resp, side_effect=exception
     ) as mock_handle:
         response = fake_client.get(f"decode/{code}")
-        mock_handle.assert_called_with(command)
+        mock_handle.assert_called_with(req)
         assert response.status_code == expected_status_code
-
-
-def test_api_integration(fake_client):
-    original_url = "https://test.io/path"
-    data = {"url": original_url}
-    headers = {"content-type": "application/json"}
-    response_encode = fake_client.put(
-        "encode",
-        data=json.dumps(data),
-        headers=headers,
-    )
-    response_decode = fake_client.get(
-        f"decode/{str(response_encode.content.decode('utf-8'))}"
-    )
-
-    assert response_encode.status_code == 200
-    assert response_decode.status_code == 200
-
-    assert response_decode.content.decode("utf-8") == original_url

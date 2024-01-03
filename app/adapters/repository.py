@@ -1,5 +1,5 @@
-from application.repository import ShortUrlRepository
-from domain.model import ShortUrlEntity
+from application.model import ShortUrlEntity
+from application.ports.repository import ShortUrlRepository
 from redis import Redis
 
 

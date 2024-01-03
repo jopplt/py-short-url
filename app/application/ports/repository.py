@@ -1,6 +1,6 @@
 from typing import Any, Generic, TypeVar
 
-from domain import model
+from application import model
 
 E = TypeVar("E", bound=model.Entity)
 

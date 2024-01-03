@@ -16,8 +16,8 @@ It uses the FastAPI framework to handle HTTP requests and responses.
 This application has been designed to be easily extensible and maintainable, and is divided in different layers, each one with a specific responsibility.
 - **`entrypoints`**: Currently it contains only one entrypoint: the FastAPI application. It handles HTTP requests and responses, and it is the only layer that is aware of the HTTP protocol.
 - **`adapters`**: It contains the implementation of the application interfaces required to let the application interact with external systems. Currently it contains only the Redis adapter, which is used to store the URLs.
-- **`application`**: It contains the business logic of the application. It is the core of the application, and it is the only layer that is aware of the application domain. The application is designed to contain a set of handlers, each one being able to handle a specific request (command or query). This allows to easily extend the application by adding new handlers.
-- **`domain`**: It contains the domain objects of the application. It is the layer that defines the behaviour of the application, in the form of models, commands and queries.
+- **`application/ports`**: It contains the application interfaces, which are used to decouple the application from the external systems.
+- **`application`**: It contains the business logic of the application, and it is isolated from external systems. 
 
 The `bootstrap.py` file is used to bootstrap the application, and it is responsible for the dependency injection.
 
